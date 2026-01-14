@@ -1,16 +1,13 @@
--- Auto-detect children created when Mini Hollow Barrage is used
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local player = Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
 
--- Create ScreenGui
 local screenGui = Instance.new("ScreenGui")
 screenGui.Name = "ChildrenDetectorGui"
 screenGui.ResetOnSpawn = false
 screenGui.Parent = playerGui
 
--- Main Frame
 local frame = Instance.new("Frame")
 frame.Size = UDim2.new(0, 400, 0, 450)
 frame.Position = UDim2.new(0.5, -200, 0.5, -225)
@@ -24,7 +21,6 @@ local corner = Instance.new("UICorner")
 corner.CornerRadius = UDim.new(0, 12)
 corner.Parent = frame
 
--- Title
 local title = Instance.new("TextLabel")
 title.Size = UDim2.new(1, 0, 0, 40)
 title.Position = UDim2.new(0, 0, 0, 0)
@@ -35,14 +31,12 @@ title.Font = Enum.Font.GothamBold
 title.TextSize = 20
 title.Parent = frame
 
--- Tab Buttons Container
 local tabContainer = Instance.new("Frame")
 tabContainer.Size = UDim2.new(1, -40, 0, 35)
 tabContainer.Position = UDim2.new(0, 20, 0, 45)
 tabContainer.BackgroundTransparency = 1
 tabContainer.Parent = frame
 
--- Detector Tab Button
 local detectorTab = Instance.new("TextButton")
 detectorTab.Size = UDim2.new(0.31, 0, 1, 0)
 detectorTab.Position = UDim2.new(0, 0, 0, 0)
@@ -57,7 +51,6 @@ local detectorCorner = Instance.new("UICorner")
 detectorCorner.CornerRadius = UDim.new(0, 6)
 detectorCorner.Parent = detectorTab
 
--- Saved Tab Button
 local savedTab = Instance.new("TextButton")
 savedTab.Size = UDim2.new(0.31, 0, 1, 0)
 savedTab.Position = UDim2.new(0.345, 0, 0, 0)
@@ -72,7 +65,6 @@ local savedCorner = Instance.new("UICorner")
 savedCorner.CornerRadius = UDim.new(0, 6)
 savedCorner.Parent = savedTab
 
--- Stack Tab Button
 local stackTab = Instance.new("TextButton")
 stackTab.Size = UDim2.new(0.31, 0, 1, 0)
 stackTab.Position = UDim2.new(0.69, 0, 0, 0)
@@ -87,7 +79,6 @@ local stackCorner = Instance.new("UICorner")
 stackCorner.CornerRadius = UDim.new(0, 6)
 stackCorner.Parent = stackTab
 
--- Detector Content Frame
 local detectorContent = Instance.new("Frame")
 detectorContent.Size = UDim2.new(1, 0, 1, -90)
 detectorContent.Position = UDim2.new(0, 0, 0, 90)
@@ -95,7 +86,6 @@ detectorContent.BackgroundTransparency = 1
 detectorContent.Visible = true
 detectorContent.Parent = frame
 
--- Status Label
 local statusLabel = Instance.new("TextLabel")
 statusLabel.Size = UDim2.new(1, -40, 0, 30)
 statusLabel.Position = UDim2.new(0, 20, 0, 0)
@@ -107,7 +97,6 @@ statusLabel.TextSize = 14
 statusLabel.TextXAlignment = Enum.TextXAlignment.Left
 statusLabel.Parent = detectorContent
 
--- ScrollingFrame for detected children
 local scrollFrame = Instance.new("ScrollingFrame")
 scrollFrame.Size = UDim2.new(1, -40, 1, -120)
 scrollFrame.Position = UDim2.new(0, 20, 0, 40)
@@ -124,7 +113,6 @@ local listLayout = Instance.new("UIListLayout")
 listLayout.Padding = UDim.new(0, 5)
 listLayout.Parent = scrollFrame
 
--- Detector Buttons
 local detectorBtnContainer = Instance.new("Frame")
 detectorBtnContainer.Size = UDim2.new(1, -40, 0, 40)
 detectorBtnContainer.Position = UDim2.new(0, 20, 1, -50)
@@ -145,7 +133,6 @@ local saveBtnCorner = Instance.new("UICorner")
 saveBtnCorner.CornerRadius = UDim.new(0, 8)
 saveBtnCorner.Parent = saveBtn
 
--- Saved Content Frame
 local savedContent = Instance.new("Frame")
 savedContent.Size = UDim2.new(1, 0, 1, -90)
 savedContent.Position = UDim2.new(0, 0, 0, 90)
@@ -153,7 +140,6 @@ savedContent.BackgroundTransparency = 1
 savedContent.Visible = false
 savedContent.Parent = frame
 
--- Saved Label
 local savedInfoLabel = Instance.new("TextLabel")
 savedInfoLabel.Size = UDim2.new(1, -40, 0, 30)
 savedInfoLabel.Position = UDim2.new(0, 20, 0, 0)
@@ -165,7 +151,6 @@ savedInfoLabel.TextSize = 14
 savedInfoLabel.TextXAlignment = Enum.TextXAlignment.Left
 savedInfoLabel.Parent = savedContent
 
--- ScrollingFrame for saved remotes
 local savedScrollFrame = Instance.new("ScrollingFrame")
 savedScrollFrame.Size = UDim2.new(1, -40, 1, -170)
 savedScrollFrame.Position = UDim2.new(0, 20, 0, 40)
@@ -182,14 +167,12 @@ local savedListLayout = Instance.new("UIListLayout")
 savedListLayout.Padding = UDim.new(0, 5)
 savedListLayout.Parent = savedScrollFrame
 
--- Saved Buttons Container
 local savedBtnContainer = Instance.new("Frame")
 savedBtnContainer.Size = UDim2.new(1, -40, 0, 90)
 savedBtnContainer.Position = UDim2.new(0, 20, 1, -100)
 savedBtnContainer.BackgroundTransparency = 1
 savedBtnContainer.Parent = savedContent
 
--- Select All Button
 local selectAllBtn = Instance.new("TextButton")
 selectAllBtn.Size = UDim2.new(1, 0, 0, 35)
 selectAllBtn.Position = UDim2.new(0, 0, 0, 0)
@@ -204,7 +187,6 @@ local selectAllCorner = Instance.new("UICorner")
 selectAllCorner.CornerRadius = UDim.new(0, 8)
 selectAllCorner.Parent = selectAllBtn
 
--- Fire Selected Button
 local fireSelectedBtn = Instance.new("TextButton")
 fireSelectedBtn.Size = UDim2.new(0.48, 0, 0, 35)
 fireSelectedBtn.Position = UDim2.new(0, 0, 0, 45)
@@ -219,7 +201,6 @@ local fireSelectedCorner = Instance.new("UICorner")
 fireSelectedCorner.CornerRadius = UDim.new(0, 8)
 fireSelectedCorner.Parent = fireSelectedBtn
 
--- Clear All Button
 local clearAllBtn = Instance.new("TextButton")
 clearAllBtn.Size = UDim2.new(0.48, 0, 0, 35)
 clearAllBtn.Position = UDim2.new(0.52, 0, 0, 45)
@@ -234,7 +215,6 @@ local clearBtnCorner = Instance.new("UICorner")
 clearBtnCorner.CornerRadius = UDim.new(0, 8)
 clearBtnCorner.Parent = clearAllBtn
 
--- Stack Content Frame
 local stackContent = Instance.new("Frame")
 stackContent.Size = UDim2.new(1, 0, 1, -90)
 stackContent.Position = UDim2.new(0, 0, 0, 90)
@@ -242,7 +222,6 @@ stackContent.BackgroundTransparency = 1
 stackContent.Visible = false
 stackContent.Parent = frame
 
--- Stack Info Label
 local stackInfoLabel = Instance.new("TextLabel")
 stackInfoLabel.Size = UDim2.new(1, -40, 0, 50)
 stackInfoLabel.Position = UDim2.new(0, 20, 0, 10)
@@ -255,7 +234,6 @@ stackInfoLabel.TextXAlignment = Enum.TextXAlignment.Left
 stackInfoLabel.TextYAlignment = Enum.TextYAlignment.Top
 stackInfoLabel.Parent = stackContent
 
--- Toggle Frame
 local toggleFrame = Instance.new("Frame")
 toggleFrame.Size = UDim2.new(1, -40, 0, 60)
 toggleFrame.Position = UDim2.new(0, 20, 0, 80)
@@ -267,7 +245,6 @@ local toggleFrameCorner = Instance.new("UICorner")
 toggleFrameCorner.CornerRadius = UDim.new(0, 8)
 toggleFrameCorner.Parent = toggleFrame
 
--- Toggle Label
 local toggleLabel = Instance.new("TextLabel")
 toggleLabel.Size = UDim2.new(0.7, 0, 1, 0)
 toggleLabel.Position = UDim2.new(0, 15, 0, 0)
@@ -279,7 +256,6 @@ toggleLabel.TextSize = 16
 toggleLabel.TextXAlignment = Enum.TextXAlignment.Left
 toggleLabel.Parent = toggleFrame
 
--- Toggle Button
 local toggleButton = Instance.new("TextButton")
 toggleButton.Size = UDim2.new(0, 80, 0, 40)
 toggleButton.Position = UDim2.new(1, -95, 0.5, -20)
@@ -294,7 +270,6 @@ local toggleButtonCorner = Instance.new("UICorner")
 toggleButtonCorner.CornerRadius = UDim.new(0, 8)
 toggleButtonCorner.Parent = toggleButton
 
--- Status Display Frame
 local statusFrame = Instance.new("Frame")
 statusFrame.Size = UDim2.new(1, -40, 0, 180)
 statusFrame.Position = UDim2.new(0, 20, 0, 160)
@@ -306,7 +281,6 @@ local statusFrameCorner = Instance.new("UICorner")
 statusFrameCorner.CornerRadius = UDim.new(0, 8)
 statusFrameCorner.Parent = statusFrame
 
--- Status Text
 local statusText = Instance.new("TextLabel")
 statusText.Size = UDim2.new(1, -20, 1, -20)
 statusText.Position = UDim2.new(0, 10, 0, 10)
@@ -319,7 +293,6 @@ statusText.TextXAlignment = Enum.TextXAlignment.Left
 statusText.TextYAlignment = Enum.TextYAlignment.Top
 statusText.Parent = statusFrame
 
--- Variables
 local detectedChildren = {}
 local selectedRemote = nil
 local savedRemotes = {}
@@ -331,7 +304,6 @@ local currentTab = "detector"
 local stackEnabled = false
 local stackCoroutine = nil
 
--- Function to get Neptune's LeftFoot CFrame
 local function getLeftFootCFrame()
     local success, result = pcall(function()
         local neptune = game.Workspace.NPCs:FindFirstChild("Neptune")
@@ -348,17 +320,15 @@ local function getLeftFootCFrame()
         return result
     else
         warn("Could not find Neptune's LeftFoot, using default CFrame")
-        return CFrame.new(7701.2685546875, -2120.7578125, -17487.412109375, 0.97690010070801, -0.11853301525116, 0.17780967056751, -7.4505814851022e-09, 0.83206498622894, 0.55467826128006, -0.21369689702988, -0.54186522960663, 0.81284421682358)
+        return CFrame.new(7701.2685546875, -2120.7578125, -17487.412109375, 0.97690010070801, -0.11853301525116, 0.17780967056751, -7.4505814851022e-09, 0.83206498622894, 0.55467826128006, -0.21369689[...]
     end
 end
 
--- Function to fire all saved remotes
 local function fireAllSavedRemotes()
     if #savedRemotes == 0 then
         return
     end
     
-    -- Turn off auto-stack before firing
     local wasStackEnabled = stackEnabled
     if stackEnabled then
         stackEnabled = false
@@ -378,12 +348,10 @@ local function fireAllSavedRemotes()
     local firedCount = 0
     local remotesToFire = {}
     
-    -- Copy all remotes to fire
     for _, remote in ipairs(savedRemotes) do
         table.insert(remotesToFire, remote)
     end
     
-    -- Clear saved remotes before firing
     savedRemotes = {}
     selectedSavedRemotes = {}
     refreshSavedList()
@@ -393,7 +361,6 @@ local function fireAllSavedRemotes()
         statusText.Text = string.format("Status: Firing %d remotes...\nAuto-stack paused", #remotesToFire)
     end
     
-    -- Fire all remotes chronologically with delay
     task.spawn(function()
         for i, remote in ipairs(remotesToFire) do
             local success = pcall(function()
@@ -408,20 +375,17 @@ local function fireAllSavedRemotes()
                 statusText.Text = string.format("Status: Firing remotes...\nFired: %d / %d", firedCount, #remotesToFire)
             end
             
-            -- Wait random time between 3-5 seconds before next remote (except for last one)
             if i < #remotesToFire then
-                local delay = math.random(30, 50) / 10 -- Random delay between 3.0 and 5.0 seconds
+                local delay = math.random(30, 50) / 10
                 task.wait(delay)
             end
         end
         
-        -- Turn auto-stack back on if it was enabled before
         if wasStackEnabled then
             stackEnabled = true
             toggleButton.BackgroundColor3 = Color3.fromRGB(34, 197, 94)
             toggleButton.Text = "ON"
             
-            -- Restart stacking loop
             stackCoroutine = task.spawn(function()
                 while stackEnabled do
                     task.wait(5)
@@ -448,11 +412,9 @@ local function fireAllSavedRemotes()
     end)
 end
 
--- Function to update saved tab count
 local function updateSavedTabCount()
     savedTab.Text = "Saved (" .. #savedRemotes .. ")"
     
-    -- Update stack status
     if stackContent.Visible then
         local statusLines = {
             "Status: " .. (stackEnabled and "Running" or "Idle"),
@@ -462,13 +424,11 @@ local function updateSavedTabCount()
         statusText.Text = table.concat(statusLines, "\n")
     end
     
-    -- Auto-fire when reaching 5 remotes
     if #savedRemotes >= 5 and stackEnabled then
         fireAllSavedRemotes()
     end
 end
 
--- Function to update selected count
 local function updateSelectedCount()
     local count = 0
     for _ in pairs(selectedSavedRemotes) do
@@ -477,7 +437,6 @@ local function updateSelectedCount()
     savedInfoLabel.Text = string.format("Select remotes to fire (%d selected)", count)
 end
 
--- Function to create a detector child button
 local function createChildButton(child, index)
     local btn = Instance.new("TextButton")
     btn.Size = UDim2.new(1, -10, 0, 35)
@@ -511,7 +470,6 @@ local function createChildButton(child, index)
     return btn
 end
 
--- Function to create a saved remote button
 local function createSavedButton(remote, index)
     local btn = Instance.new("TextButton")
     btn.Size = UDim2.new(1, -10, 0, 35)
@@ -531,7 +489,6 @@ local function createSavedButton(remote, index)
     padding.PaddingLeft = UDim.new(0, 10)
     padding.Parent = btn
     
-    -- Set initial state if already selected
     if selectedSavedRemotes[remote] then
         btn.BackgroundColor3 = Color3.fromRGB(34, 197, 94)
     end
@@ -550,7 +507,6 @@ local function createSavedButton(remote, index)
     return btn
 end
 
--- Function to refresh saved list
 local function refreshSavedList()
     for _, child in pairs(savedScrollFrame:GetChildren()) do
         if child:IsA("TextButton") then
@@ -566,7 +522,6 @@ local function refreshSavedList()
     updateSavedTabCount()
 end
 
--- Function to get current children
 local function getCurrentChildren()
     local children = {}
     for _, child in pairs(ReplicatedStorage:GetChildren()) do
@@ -575,10 +530,8 @@ local function getCurrentChildren()
     return children
 end
 
--- Store initial children
 beforeChildren = getCurrentChildren()
 
--- Tab switching
 detectorTab.MouseButton1Click:Connect(function()
     currentTab = "detector"
     detectorContent.Visible = true
@@ -610,7 +563,6 @@ stackTab.MouseButton1Click:Connect(function()
     updateSavedTabCount()
 end)
 
--- Save button functionality
 saveBtn.MouseButton1Click:Connect(function()
     if selectedRemote and selectedRemote:IsA("RemoteEvent") then
         local alreadySaved = false
@@ -646,11 +598,9 @@ saveBtn.MouseButton1Click:Connect(function()
     end
 end)
 
--- Select All button functionality
 selectAllBtn.MouseButton1Click:Connect(function()
     local allSelected = true
     
-    -- Check if all are already selected
     for _, remote in ipairs(savedRemotes) do
         if not selectedSavedRemotes[remote] then
             allSelected = false
@@ -658,13 +608,10 @@ selectAllBtn.MouseButton1Click:Connect(function()
         end
     end
     
-    -- Toggle selection
     if allSelected then
-        -- Deselect all
         selectedSavedRemotes = {}
         selectAllBtn.Text = "Select All"
     else
-        -- Select all
         for _, remote in ipairs(savedRemotes) do
             selectedSavedRemotes[remote] = true
         end
@@ -675,7 +622,6 @@ selectAllBtn.MouseButton1Click:Connect(function()
     updateSelectedCount()
 end)
 
--- Fire Selected button functionality
 fireSelectedBtn.MouseButton1Click:Connect(function()
     local remotesToFire = {}
     for remote in pairs(selectedSavedRemotes) do
@@ -691,19 +637,16 @@ fireSelectedBtn.MouseButton1Click:Connect(function()
         return
     end
     
-    -- Get Neptune's LeftFoot CFrame
     local leftFootCFrame = getLeftFootCFrame()
     local cfData = {
         cf = leftFootCFrame
     }
     
-    -- Clear selection immediately
     selectedSavedRemotes = {}
     
     savedInfoLabel.Text = string.format("Firing %d remotes chronologically...", #remotesToFire)
     savedInfoLabel.TextColor3 = Color3.fromRGB(255, 200, 100)
     
-    -- Fire remotes in separate coroutine so UI doesn't freeze
     task.spawn(function()
         local firedCount = 0
         local failedCount = 0
@@ -716,7 +659,6 @@ fireSelectedBtn.MouseButton1Click:Connect(function()
             if success then
                 firedCount = firedCount + 1
                 
-                -- Remove from saved list
                 for j, r in ipairs(savedRemotes) do
                     if r == remote then
                         table.remove(savedRemotes, j)
@@ -730,14 +672,12 @@ fireSelectedBtn.MouseButton1Click:Connect(function()
             savedInfoLabel.Text = string.format("Firing: %d / %d (Success: %d, Failed: %d)", 
                 i, #remotesToFire, firedCount, failedCount)
             
-            -- Wait random time between 3-5 seconds before next remote (except for last one)
             if i < #remotesToFire then
-                local delay = math.random(30, 50) / 10 -- Random delay between 3.0 and 5.0 seconds
+                local delay = math.random(30, 50) / 10
                 task.wait(delay)
             end
         end
         
-        -- Update UI
         refreshSavedList()
         updateSelectedCount()
         
@@ -749,7 +689,6 @@ fireSelectedBtn.MouseButton1Click:Connect(function()
     end)
 end)
 
--- Clear all button functionality
 clearAllBtn.MouseButton1Click:Connect(function()
     savedRemotes = {}
     selectedSavedRemotes = {}
@@ -763,7 +702,6 @@ clearAllBtn.MouseButton1Click:Connect(function()
     updateSelectedCount()
 end)
 
--- Toggle button functionality
 toggleButton.MouseButton1Click:Connect(function()
     stackEnabled = not stackEnabled
     
@@ -771,7 +709,6 @@ toggleButton.MouseButton1Click:Connect(function()
         toggleButton.BackgroundColor3 = Color3.fromRGB(34, 197, 94)
         toggleButton.Text = "ON"
         
-        -- Start stacking loop
         if stackCoroutine then
             task.cancel(stackCoroutine)
         end
@@ -795,7 +732,6 @@ toggleButton.MouseButton1Click:Connect(function()
         toggleButton.BackgroundColor3 = Color3.fromRGB(220, 38, 38)
         toggleButton.Text = "OFF"
         
-        -- Stop stacking loop
         if stackCoroutine then
             task.cancel(stackCoroutine)
             stackCoroutine = nil
@@ -805,7 +741,6 @@ toggleButton.MouseButton1Click:Connect(function()
     updateSavedTabCount()
 end)
 
--- Hook the namecall to detect Mini Hollow Barrage
 local originalNamecall
 originalNamecall = hookmetamethod(game, "__namecall", function(self, ...)
     local method = getnamecallmethod()
@@ -819,7 +754,6 @@ originalNamecall = hookmetamethod(game, "__namecall", function(self, ...)
     return originalNamecall(self, ...)
 end)
 
--- Heartbeat loop to continuously check for new children
 game:GetService("RunService").Heartbeat:Connect(function()
     local currentTime = tick()
     
@@ -830,7 +764,6 @@ game:GetService("RunService").Heartbeat:Connect(function()
             local afterChildren = getCurrentChildren()
             local newChildren = {}
             
-            -- Auto-detect username pattern
             local usernamePattern = player.Name .. "|ServerScriptService.Skills.Skills.SkillContainer.Horo-Horo.Mini Hollow Barrage"
             
             for child in pairs(afterChildren) do
