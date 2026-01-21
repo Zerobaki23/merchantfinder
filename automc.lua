@@ -3,6 +3,8 @@ local TweenService = game:GetService("TweenService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
 local TeleportService = game:GetService("TeleportService")
+local HttpService = game:GetService("HttpService")
+local RunService = game:GetService("RunService")
 
 -- Check if game ID matches
 if game.PlaceId ~= 3978370137 then
@@ -16,6 +18,11 @@ local dashEvent = ReplicatedStorage.Events.takestam
 local merchantEvent = ReplicatedStorage.Events.TravelingMerchentRemote
 
 local webhookUtil = loadstring(game:HttpGet("https://raw.githubusercontent.com/idonthaveoneatm/lua/normal/discordwebhook/src.lua"))()
+
+-- Flask server configuration
+local FLASK_SERVER = "http://192.168.100.96:5000"
+local lastStockHash = nil
+local flaskConnected = false
 
 -- Auto rejoin if kicked
 game:GetService("CoreGui").ChildRemoved:Connect(function(child)
@@ -165,6 +172,93 @@ inputBox.Parent = inputFrame
 local logCount = 0
 local isMinimized = false
 local tweenEnabled = true
+local is3dDisabled = false
+local blackScreenGui = nil
+local startTime = os.time()
+
+local function formatPlaytime(seconds)
+    local hours = math.floor(seconds / 3600)
+    local minutes = math.floor((seconds % 3600) / 60)
+    local secs = seconds % 60
+    return string.format("%02dh %02dm %02ds", hours, minutes, secs)
+end
+
+local function create3dDisabledScreen()
+    local gui = Instance.new("ScreenGui")
+    gui.Name = "3dDisabledScreen"
+    gui.ResetOnSpawn = false
+    gui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+    gui.DisplayOrder = 999999
+    gui.Parent = playerGui
+    
+    local background = Instance.new("Frame")
+    background.Name = "Background"
+    background.Size = UDim2.new(1, 0, 1, 0)
+    background.Position = UDim2.new(0, 0, 0, 0)
+    background.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+    background.BorderSizePixel = 0
+    background.Parent = gui
+    
+    local discordLabel = Instance.new("TextLabel")
+    discordLabel.Name = "DiscordLabel"
+    discordLabel.Size = UDim2.new(0, 500, 0, 60)
+    discordLabel.Position = UDim2.new(0.5, -250, 0.35, 0)
+    discordLabel.BackgroundTransparency = 1
+    discordLabel.Text = "Merchant Farm"
+    discordLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+    discordLabel.TextSize = 48
+    discordLabel.Font = Enum.Font.GothamBold
+    discordLabel.TextXAlignment = Enum.TextXAlignment.Center
+    discordLabel.Parent = gui
+    
+    local playtimeLabel = Instance.new("TextLabel")
+    playtimeLabel.Name = "PlaytimeLabel"
+    playtimeLabel.Size = UDim2.new(0, 500, 0, 40)
+    playtimeLabel.Position = UDim2.new(0.5, -250, 0.5, 0)
+    playtimeLabel.BackgroundTransparency = 1
+    playtimeLabel.Text = "Play Time: 00h 00m 00s"
+    playtimeLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
+    playtimeLabel.TextSize = 28
+    playtimeLabel.Font = Enum.Font.Gotham
+    playtimeLabel.TextXAlignment = Enum.TextXAlignment.Center
+    playtimeLabel.Parent = gui
+    
+    local usernameLabel = Instance.new("TextLabel")
+    usernameLabel.Name = "UsernameLabel"
+    usernameLabel.Size = UDim2.new(0, 500, 0, 40)
+    usernameLabel.Position = UDim2.new(0.5, -250, 0.58, 0)
+    usernameLabel.BackgroundTransparency = 1
+    usernameLabel.Text = "Name: " .. player.Name
+    usernameLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
+    usernameLabel.TextSize = 28
+    usernameLabel.Font = Enum.Font.Gotham
+    usernameLabel.TextXAlignment = Enum.TextXAlignment.Center
+    usernameLabel.Parent = gui
+    
+    RunService.RenderStepped:Connect(function()
+        if is3dDisabled and playtimeLabel and playtimeLabel.Parent then
+            local elapsed = os.time() - startTime
+            playtimeLabel.Text = "Play Time: " .. formatPlaytime(elapsed)
+        end
+    end)
+    
+    return gui
+end
+
+local function toggle3dDisabled()
+    is3dDisabled = not is3dDisabled
+    
+    if is3dDisabled then
+        blackScreenGui = create3dDisabledScreen()
+        log("3D Disabled mode ENABLED", "success")
+    else
+        if blackScreenGui then
+            blackScreenGui:Destroy()
+            blackScreenGui = nil
+        end
+        log("3D Disabled mode DISABLED", "warning")
+    end
+end
 
 local function log(message, logType)
     logType = logType or "info"
@@ -207,6 +301,95 @@ local function log(message, logType)
     logFrame.CanvasPosition = Vector2.new(0, logFrame.AbsoluteCanvasSize.Y)
 end
 
+-- Flask server communication functions
+local function checkFlaskConnection()
+    log("Attempting to connect to Flask server...", "info")
+    
+    local success, result = pcall(function()
+        return HttpService:GetAsync(FLASK_SERVER .. "/ping", true)
+    end)
+    
+    if success then
+        flaskConnected = true
+        log("Connected to Flask server!", "success")
+        return true
+    else
+        flaskConnected = false
+        log("Failed to connect to Flask server: " .. tostring(result), "error")
+        log("Flask server may not be running on " .. FLASK_SERVER, "warning")
+        return false
+    end
+end
+
+local function sendToFlask(endpoint, data)
+    if not flaskConnected then
+        return false
+    end
+    
+    local success, result = pcall(function()
+        return HttpService:PostAsync(
+            FLASK_SERVER .. endpoint,
+            HttpService:JSONEncode(data),
+            Enum.HttpContentType.ApplicationJson
+        )
+    end)
+    
+    if success then
+        log("Sent to Flask: " .. endpoint, "success")
+        return true
+    else
+        log("Failed to send to Flask: " .. tostring(result), "error")
+        flaskConnected = false
+        return false
+    end
+end
+
+local function sendFlaskMessage(message)
+    return sendToFlask("/message", {message = message})
+end
+
+local function generateStockHash(prices)
+    local stockString = ""
+    
+    if type(prices) == "table" then
+        local sortedKeys = {}
+        for k in pairs(prices) do
+            table.insert(sortedKeys, k)
+        end
+        table.sort(sortedKeys)
+        
+        for _, itemName in ipairs(sortedKeys) do
+            local itemData = prices[itemName]
+            local price = itemData
+            
+            if type(itemData) == "table" then
+                price = itemData.price or itemData.Price or itemData.cost or itemData.Cost or 0
+            end
+            
+            stockString = stockString .. itemName .. ":" .. tostring(price) .. ";"
+        end
+    else
+        stockString = tostring(prices)
+    end
+    
+    local hash = 0
+    for i = 1, #stockString do
+        hash = (hash * 31 + string.byte(stockString, i)) % 2147483647
+    end
+    
+    return tostring(hash)
+end
+
+local function countStock(prices)
+    local count = 0
+    if type(prices) == "table" then
+        for _ in pairs(prices) do
+            count = count + 1
+        end
+    end
+    return count
+end
+
 minimizeBtn.MouseButton1Click:Connect(function()
     isMinimized = not isMinimized
     if isMinimized then
@@ -229,12 +412,45 @@ inputBox.FocusLost:Connect(function(enterPressed)
             else
                 log("Tweening DISABLED", "warning")
             end
+        elseif command == "toggle.3ddisabled" then
+            toggle3dDisabled()
         elseif command == "status" then
             log("Tween Status: " .. (tweenEnabled and "ENABLED" or "DISABLED"), "info")
+            log("Flask Status: " .. (flaskConnected and "CONNECTED" or "DISCONNECTED"), "info")
+            log("3D Disabled: " .. (is3dDisabled and "ENABLED" or "DISABLED"), "info")
+        elseif command == "reconnect" then
+            checkFlaskConnection()
+        elseif command == "toggle.flasktest" then
+            local testStock = {
+                ["Apple"] = 50,
+                ["Banana"] = 75,
+                ["Orange"] = 100,
+                ["Mythical Fruit Chest"] = 5000,
+                ["Golden Diamond"] = 2500,
+                ["Silver Ingot"] = 350,
+                ["Copper Ore"] = 25,
+                ["Iron Bar"] = 150
+            }
+            
+            local testData = {
+                timestamp = os.time(),
+                prices = testStock,
+                formatted = "**TEST STOCK:**\n```\nApple - 50\nBanana - 75\nOrange - 100\nMythical Fruit Chest - 5000\nGolden Diamond - 2500\nSilver Ingot - 350\nCopper Ore - 25\nIron Bar - 150\n```"
+            }
+            
+            if sendToFlask("/stock", testData) then
+                log("Test stock sent to Flask successfully!", "success")
+                sendFlaskMessage("📊 TEST STOCK SENT - Check localhost:5000")
+            else
+                log("Failed to send test stock to Flask", "error")
+            end
         elseif command == "help" then
             log("Available commands:", "info")
             log("  toggle - Enable/disable tweening", "info")
-            log("  status - Check tween status", "info")
+            log("  toggle.3ddisabled - Toggle black screen mode", "info")
+            log("  toggle.flasktest - Send test stock to Flask server", "info")
+            log("  status - Check tween and Flask status", "info")
+            log("  reconnect - Reconnect to Flask server", "info")
             log("  help - Show this message", "info")
         elseif command ~= "" then
             log("Unknown command: " .. command, "error")
@@ -247,7 +463,14 @@ end)
 
 log("Terminal initialized", "success")
 log("Collision disabled - noclip enabled", "success")
+
+checkFlaskConnection()
+
 log("Auto-dash, merchant interaction, and webhook monitor enabled", "info")
+
+if flaskConnected then
+    sendFlaskMessage("hi")
+end
 
 local function getPricesFromShop(merchantShop)
     local pricesData = {}
@@ -310,15 +533,37 @@ local function formatPrices(prices)
 end
 
 local function sendPriceWebhook(prices)
+    local currentHash = generateStockHash(prices)
+    
+    if currentHash == lastStockHash then
+        log("Stock unchanged - skipping webhook and Flask update", "info")
+        return
+    end
+    
+    lastStockHash = currentHash
+    log("New stock detected - sending updates", "success")
+    
     local priceText = formatPrices(prices)
     local hasMythicalFruitChest = false
     local mythicalChestName = nil
+    
+    -- Count and send stock to /ping endpoint
+    local stockCount = countStock(prices)
+    sendToFlask("/ping", {stock = stockCount})
+    log("Stock count sent to /ping: " .. stockCount, "success")
+    
+    -- Send full stock data to /stock endpoint
+    local stockData = {
+        timestamp = os.time(),
+        prices = prices,
+        formatted = priceText
+    }
+    sendToFlask("/stock", stockData)
     
     if type(prices) == "table" then
         for itemName, _ in pairs(prices) do
             local lowerName = string.lower(itemName)
             
-            -- Check for Mythical Fruit Chest
             if lowerName:find("mythical") and lowerName:find("fruit") and lowerName:find("chest") then
                 hasMythicalFruitChest = true
                 mythicalChestName = itemName
@@ -332,8 +577,8 @@ local function sendPriceWebhook(prices)
     if hasMythicalFruitChest then
         content = "<@832942242498084888> " .. priceText
         log("Mythical Fruit Chest detected! Pinging user.", "success")
+        sendFlaskMessage("🎁 MYTHICAL FRUIT CHEST DETECTED!")
         
-        -- Auto-buy the Mythical Fruit Chest
         task.spawn(function()
             task.wait(1)
             log("Attempting to purchase Mythical Fruit Chest...", "info")
@@ -344,8 +589,10 @@ local function sendPriceWebhook(prices)
             
             if success then
                 log("Successfully purchased Mythical Fruit Chest!", "success")
+                sendFlaskMessage("✅ Purchased Mythical Fruit Chest!")
             else
                 log("Failed to purchase: " .. tostring(result), "error")
+                sendFlaskMessage("❌ Failed to purchase chest: " .. tostring(result))
             end
         end)
     end
@@ -376,6 +623,7 @@ local function onMerchantShopAdded(child)
     if child.Name == "MerchentShop" and not shopOpened then
         shopOpened = true
         log("MerchentShop detected! Getting prices...", "success")
+        sendFlaskMessage("Merchant shop opened - scanning stock...")
         task.wait(0.5)
         
         local prices = getPricesFromShop(child)
@@ -384,6 +632,7 @@ local function onMerchantShopAdded(child)
             sendPriceWebhook(prices)
         else
             log("No prices found in MerchentShop", "warning")
+            sendFlaskMessage("⚠️ No prices found in merchant shop")
         end
     end
 end
@@ -446,6 +695,7 @@ local function tweenToMerchant()
     local compassGuider = ReplicatedStorage:WaitForChild("CompassGuider")
     
     log("Waiting for Traveling Merchant to appear in CompassGuider...", "info")
+    sendFlaskMessage("Searching for Traveling Merchant...")
     local merchantGuider = nil
     local waitTime = 0
     local maxWait = 60
@@ -454,6 +704,7 @@ local function tweenToMerchant()
         merchantGuider = compassGuider:FindFirstChild("Traveling Merchant")
         if merchantGuider then
             log("Traveling Merchant found in CompassGuider!", "success")
+            sendFlaskMessage("Merchant located - preparing to travel")
             break
         end
         task.wait(1)
@@ -496,6 +747,7 @@ local function tweenToMerchant()
     
     log("Tweening to merchant location...", "info")
     log("Distance: " .. string.format("%.1f", distance) .. " studs | Time: " .. string.format("%.1f", tweenTime) .. " seconds", "info")
+    sendFlaskMessage(string.format("Traveling %.0f studs to merchant (ETA: %.0fs)", distance, tweenTime))
     
     local dashLoop = coroutine.create(function()
         while true do
@@ -519,6 +771,7 @@ local function tweenToMerchant()
     
     tween.Completed:Wait()
     log("Arrived at merchant location!", "success")
+    sendFlaskMessage("Arrived at merchant - interacting...")
     
     task.wait(1)
     
